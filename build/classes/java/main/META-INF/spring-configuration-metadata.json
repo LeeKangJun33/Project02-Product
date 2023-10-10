@@ -1,0 +1,27 @@
+{
+  "groups": [
+    {
+      "name": "app",
+      "type": "com.example.project02.properties.AppProperties",
+      "sourceType": "com.example.project02.properties.AppProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "app.cool-sms-from-phone-number",
+      "type": "java.lang.String",
+      "sourceType": "com.example.project02.properties.AppProperties"
+    },
+    {
+      "name": "app.cool-sms-key",
+      "type": "java.lang.String",
+      "sourceType": "com.example.project02.properties.AppProperties"
+    },
+    {
+      "name": "app.cool-sms-secret",
+      "type": "java.lang.String",
+      "sourceType": "com.example.project02.properties.AppProperties"
+    }
+  ],
+  "hints": []
+}
