@@ -24,9 +24,10 @@ public class ProductController {
     }
 
     // 판매 물품 조회
-    @GetMapping("/sellproduct/{productname}/{productId}")
-    public ProductDTO getProductById(@PathVariable Long productId) {
-        return productService.getProductById(productId);
+    @GetMapping("/sellproduct/{productname}")
+    public ResponseEntity<ProductDTO> getProductByName(@PathVariable String productName) {
+        ProductDTO product = productService.getProductByName(productName);
+        return ResponseEntity.ok(product);
     }
 
 

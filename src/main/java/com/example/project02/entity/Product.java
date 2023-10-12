@@ -27,7 +27,7 @@ public class Product {
     private Category category;
 
     @Column(name = "product_name",length = 20)
-    private String product_name;
+    private String productName;;
 
     private double price;
 
@@ -49,6 +49,7 @@ public class Product {
     private String img3;
 
     @Column(name = "seller_id")
-    private Long SellerId;
+    private Long sellerId;
+
 
 }
