@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 
 @Service
@@ -28,6 +29,14 @@ public class ProductService {
         return productMapper.toDTO(savedProduct);
     }
 
+    public void registerProduct(Product product) {
+        if (product == null) {
+            throw new IllegalArgumentException("물품 정보가 없습니다.");
+        }
+
+        productRepository.save(product);
+    }
+
     // 판매 물품 조회
     public ProductDTO getProductByName(String productName) {
         Product product = productRepository.findByProductName(productName)
@@ -36,11 +45,17 @@ public class ProductService {
     }
 
     // 판매 물품 재고 수정
-    public void updateProductStockBySeller(Long sellerId, Long productId, int newStockQuantity) {
-        Product product = productRepository.findBySellerIdAndProductId(sellerId, productId)
-                .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다. ID: " + productId));
-        product.setStock_quantity(newStockQuantity);
-        productRepository.save(product);
+    public boolean updateProductStockBySeller(Long sellerId, Long productId, int newStockQuantity) {
+        Optional<Product> productOptional = productRepository.findBySellerIdAndProductId(sellerId, productId);
+
+        if (productOptional.isPresent()) {
+            Product product = productOptional.get();
+            product.setStock_quantity(newStockQuantity);
+            productRepository.save(product);
+            return true; // 업데이트 성공
+        }
+
+        return false; // 업데이트 실패: 상품을 찾을 수 없음
     }
 
     // 이미지를 저장할 디렉토리 경로
@@ -49,23 +64,19 @@ public class ProductService {
     public void saveImage(MultipartFile file) {
         if (!file.isEmpty()) {
             try {
-                // 업로드된 파일의 원본 이름을 가져옴
                 String originalFilename = file.getOriginalFilename();
 
-                // 저장할 파일 경로
                 String filePath = UPLOAD_DIRECTORY + originalFilename;
 
-                // 파일을 지정된 경로에 저장
                 File dest = new File(filePath);
                 file.transferTo(dest);
 
-                // 저장된 파일을 가공하거나 다른 작업을 수행할 수 있음
             } catch (IOException e) {
-                // 이미지 업로드 중에 예외가 발생하면 ImageUploadException으로 래핑하여 던짐
-                throw new ImageUploadException("Failed to upload image", e);
+
+                throw new ImageUploadException("이미지업로드에 실패했습니다", e);
             }
         } else {
-            throw new ImageUploadException("Uploaded file is empty");
+            throw new ImageUploadException("오류입니다");
         }
     }
 }

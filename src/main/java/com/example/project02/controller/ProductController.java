@@ -1,12 +1,18 @@
 package com.example.project02.controller;
 
 import com.example.project02.dto.ProductDTO;
+import com.example.project02.entity.Product;
 import com.example.project02.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,9 +23,38 @@ public class ProductController {
 
     // 쇼핑몰 판매 물품 등록
     @PostMapping("/sellproduct/register")
-    public ProductDTO createProduct(@RequestBody ProductDTO productDTO) {
-        return productService.createProduct(productDTO);
+    public String createProduct(@ModelAttribute ProductDTO productDTO,Model model) {
+       productService.createProduct(productDTO);
+        return "sellProductRegister";  // sellProductRegister.html 뷰 반환
     }
+
+    @PostMapping("/product/register")
+    public ModelAndView registerProduct(
+            @RequestParam String productName,
+            @RequestParam String productDescription,
+            @RequestParam Double price,
+            @RequestParam Integer stockQuantity,
+            @RequestParam Date registrationDate) {
+
+        Product product = new Product();
+        product.setProductName(productName);
+        product.setProductDescription(productDescription);
+        product.setPrice(price);
+        product.setStock_quantity(stockQuantity);
+
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        product.setRegister_date(currentDateTime);
+
+        product.setField_predicted_sale_enddate(registrationDate);
+
+
+        productService.registerProduct(product);
+
+        ModelAndView modelAndView = new ModelAndView("successPage");  // successPage.html 뷰를 반환
+        modelAndView.addObject("message", "물품이 성공적으로 등록되었습니다.");
+        return modelAndView;
+    }
+
 
     // 판매 물품 조회
     @GetMapping("/sellproduct/{productname}")
@@ -29,34 +64,38 @@ public class ProductController {
     }
 
 
+
     // 판매 물품 재고 수정
-    @PutMapping("/sellproduct/{productname}/stock/{sellerId}/{productId}/stock")
-    public void updateProductStockBySeller(
+    @PutMapping("/sellproduct/adjuststock{sellerId}/{productId}/stock")
+    public ResponseEntity<String> updateProductStockBySeller(
             @PathVariable Long sellerId,
             @PathVariable Long productId,
             @RequestParam int newStockQuantity) {
-        productService.updateProductStockBySeller(sellerId, productId, newStockQuantity);
+        boolean success = productService.updateProductStockBySeller(sellerId, productId, newStockQuantity);
+
+        if (success) {
+            return ResponseEntity.ok("재고 수정이 성공적으로 이루어졌습니다.");
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("재고 수정에 실패했습니다.");
+        }
     }
 
     //이미지 등록
     @PostMapping("/product/image")
     public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
-            // 이미지를 저장하거나 다른 처리를 수행하는 서비스 메서드를 호출
-            // 이 예제에서는 저장만 하고 에러 처리를 하지 않았습니다
+
             saveImage(file);
-            return new ResponseEntity<>("Image uploaded successfully", HttpStatus.OK);
+            return new ResponseEntity<>("이미지업로드에 성공했습니다:", HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Failed to upload image: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("이미지업로드에 실패했습니다: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     private void saveImage(MultipartFile file) throws Exception {
         if (!file.isEmpty()) {
-            // 이미지를 저장하거나 다른 처리를 수행
-            // 여기에 파일 저장 로직을 구현하십시오
         } else {
-            throw new Exception("Uploaded file is empty");
+            throw new Exception("빈 이미지 파일입니다");
         }
     }
 }

@@ -17,6 +17,7 @@ public class ProductDTO {
     private Long productId;
     private String productName;
     private double price;
+    private String productDescription;
     private int stockQuantity;
     private LocalDateTime registerDate;
     private Date fieldPredictedSaleEndDate;

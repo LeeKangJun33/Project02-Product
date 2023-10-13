@@ -29,6 +29,8 @@ public class Product {
     @Column(name = "product_name",length = 20)
     private String productName;;
 
+    private String productDescription;
+
     private double price;
 
     private int stock_quantity;
