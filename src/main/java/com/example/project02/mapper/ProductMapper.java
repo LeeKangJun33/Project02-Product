@@ -18,5 +18,4 @@ public interface ProductMapper {
     @Mapping(target = "productId", source = "productId")
     Product toEntity(ProductDTO productDTO);
 
-    List<ProductDTO> toDTOList(List<Product> products);
 }

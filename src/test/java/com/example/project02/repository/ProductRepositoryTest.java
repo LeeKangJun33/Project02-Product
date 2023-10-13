@@ -5,20 +5,37 @@ import com.example.project02.entity.Category;
 import com.example.project02.entity.Product;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.FileInputStream;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @Transactional
+@ExtendWith(SpringExtension.class)
+@AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-test.properties")
 public class ProductRepositoryTest {
 
@@ -27,6 +44,10 @@ public class ProductRepositoryTest {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private MockMvc mockMvc;
+
 
     @Transactional
     public void createProductList() {
@@ -37,7 +58,7 @@ public class ProductRepositoryTest {
 
         for (int i = 1; i <= 10; i++) {
             Product product = new Product();
-            product.setProduct_name("테스트상품" + i);
+            product.setProductName("테스트상품" + i);
             product.setPrice(10000 + i);
             product.setStock_quantity(100);
             product.setProductSerllStatus(ProductSerllStatus.SELL);
@@ -63,7 +84,7 @@ public class ProductRepositoryTest {
         // When: 상품 생성 및 저장
         Product product = new Product();
         product.setCategory(savedCategory);
-        product.setProduct_name("후드티");
+        product.setProductName("후드티");
         product.setPrice(1000);
         product.setStock_quantity(10);
         product.setRegister_date(LocalDateTime.now());
@@ -77,12 +98,13 @@ public class ProductRepositoryTest {
 
         // Then: 저장된 상품 검증
         assertThat(savedProduct).isNotNull();
-        assertThat(savedProduct.getProduct_id()).isNotNull();
+        assertThat(savedProduct.getProductId()).isNotNull();
+
 
         // Then: 저장된 상품을 다시 조회하여 검증
-        Product retrievedProduct = productRepository.findById(savedProduct.getProduct_id()).orElse(null);
+        Product retrievedProduct = productRepository.findById(savedProduct.getProductId()).orElse(null);
         assertThat(retrievedProduct).isNotNull();
-        assertThat(retrievedProduct.getProduct_name()).isEqualTo("후드티");
+        assertThat(retrievedProduct.getProductName()).isEqualTo("후드티");
     }
 
     @Test
@@ -99,7 +121,7 @@ public class ProductRepositoryTest {
         // 조회된 상품 리스트 출력
         for (Product product : productList) {
             System.out.println(product.toString());
-            assertThat(product.getProduct_name()).isEqualTo(productNameToFind);
+            assertThat(product.getProductName()).isEqualTo(productNameToFind);
         }
     }
         @Test
@@ -115,7 +137,7 @@ public class ProductRepositoryTest {
             // When: 새로운 상품 등록
             Product product = new Product();
             product.setCategory(savedCategory);
-            product.setProduct_name("신발"); // 상품명 설정
+            product.setProductName("신발"); // 상품명 설정
             product.setPrice(50000); // 가격 설정
             product.setStock_quantity(50); // 재고 설정
             product.setRegister_date(LocalDateTime.now());
@@ -129,12 +151,13 @@ public class ProductRepositoryTest {
 
             // Then: 상품 등록 확인
             assertThat(savedProduct).isNotNull();
-            assertThat(savedProduct.getProduct_id()).isNotNull();
+            assertThat(savedProduct.getProductId()).isNotNull();
 
             // Then: 등록한 상품 조회하여 검증
-            Product retrievedProduct = productRepository.findById(savedProduct.getProduct_id()).orElse(null);
+            Product retrievedProduct = productRepository.findById(savedProduct.getProductId()).orElse(null);
             assertThat(retrievedProduct).isNotNull();
-            assertThat(retrievedProduct.getProduct_name()).isEqualTo("신발"); // 상품명 확인
+            assertThat(retrievedProduct.getProductName()).isEqualTo("신발"); // 상품명 확인
         }
-    }
+
+}
 

@@ -4,14 +4,12 @@ import com.example.project02.dto.CategoryDTO;
 import com.example.project02.dto.ProductDTO;
 import com.example.project02.entity.Category;
 import com.example.project02.entity.Product;
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2023-10-12T21:13:52+0900",
+    date = "2023-10-13T21:01:59+0900",
     comments = "version: 1.4.2.Final, compiler: IncrementalProcessingEnvironment from gradle-language-java-8.2.1.jar, environment: Java 11.0.13 (Oracle Corporation)"
 )
 @Component
@@ -55,20 +53,6 @@ public class ProductMapperImpl implements ProductMapper {
         product.setSellerId( productDTO.getSellerId() );
 
         return product;
-    }
-
-    @Override
-    public List<ProductDTO> toDTOList(List<Product> products) {
-        if ( products == null ) {
-            return null;
-        }
-
-        List<ProductDTO> list = new ArrayList<ProductDTO>( products.size() );
-        for ( Product product : products ) {
-            list.add( toDTO( product ) );
-        }
-
-        return list;
     }
 
     protected CategoryDTO categoryToCategoryDTO(Category category) {
