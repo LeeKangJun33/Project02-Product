@@ -39,7 +39,7 @@ public class Product {
 
     @Temporal(TemporalType.DATE)
     @Column(name = "field_predicted_sale_enddate",nullable = false)
-    private Date field_predicted_sale_enddate;
+    private Date fieldPredictedSaleEnddate;
 
     @Enumerated(EnumType.STRING)
     private ProductSerllStatus productSerllStatus; //상품 판매상태

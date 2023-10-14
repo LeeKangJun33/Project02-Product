@@ -1,5 +1,6 @@
 package com.example.project02.service.product;
 
+import com.example.project02.constant.ProductSerllStatus;
 import com.example.project02.dto.ProductDTO;
 import com.example.project02.entity.Product;
 import com.example.project02.exception.ImageUploadException;
@@ -12,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -78,5 +81,11 @@ public class ProductService {
         } else {
             throw new ImageUploadException("오류입니다");
         }
+    }
+
+   //판매종료 날짜가 지난 판매 물품 내역 조회
+    public List<Product> getExpiredProducts() {
+        Date currentDate = new Date();
+        return productRepository.findByFieldPredictedSaleEnddateBeforeAndProductSerllStatus(currentDate, ProductSerllStatus.ACTIVE);
     }
 }

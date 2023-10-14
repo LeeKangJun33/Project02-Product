@@ -1,11 +1,13 @@
 package com.example.project02.repository;
 
+import com.example.project02.constant.ProductSerllStatus;
 import com.example.project02.entity.Product;
 import com.example.project02.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +18,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findBySellerIdAndProductId(Long sellerId, Long productId);
 
     Optional<Product> findByProductName(String productName);
+
+    List<Product> findByFieldPredictedSaleEnddateBeforeAndProductSerllStatus(Date currentDate, ProductSerllStatus status);
 
 
 

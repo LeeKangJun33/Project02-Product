@@ -4,15 +4,16 @@ import com.example.project02.dto.ProductDTO;
 import com.example.project02.entity.Product;
 import com.example.project02.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,38 +24,27 @@ public class ProductController {
 
     // 쇼핑몰 판매 물품 등록
     @PostMapping("/sellproduct/register")
-    public String createProduct(@ModelAttribute ProductDTO productDTO,Model model) {
-       productService.createProduct(productDTO);
-        return "sellProductRegister";  // sellProductRegister.html 뷰 반환
-    }
-
-    @PostMapping("/product/register")
-    public ModelAndView registerProduct(
+    public String createProduct(
             @RequestParam String productName,
             @RequestParam String productDescription,
             @RequestParam Double price,
             @RequestParam Integer stockQuantity,
-            @RequestParam Date registrationDate) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date registrationDate,
+            Model model) {
 
         Product product = new Product();
         product.setProductName(productName);
         product.setProductDescription(productDescription);
         product.setPrice(price);
         product.setStock_quantity(stockQuantity);
-
-        LocalDateTime currentDateTime = LocalDateTime.now();
-        product.setRegister_date(currentDateTime);
-
-        product.setField_predicted_sale_enddate(registrationDate);
-
+        product.setRegister_date(LocalDateTime.now());
+        product.setFieldPredictedSaleEnddate(registrationDate);
 
         productService.registerProduct(product);
 
-        ModelAndView modelAndView = new ModelAndView("successPage");  // successPage.html 뷰를 반환
-        modelAndView.addObject("message", "물품이 성공적으로 등록되었습니다.");
-        return modelAndView;
+        model.addAttribute("message", "물품이 성공적으로 등록되었습니다.");
+        return "successPage";
     }
-
 
     // 판매 물품 조회
     @GetMapping("/sellproduct/{productname}")
@@ -97,6 +87,12 @@ public class ProductController {
         } else {
             throw new Exception("빈 이미지 파일입니다");
         }
+    }
+
+    //판매종료 날짜가 지난 판매 물품 내역 조회
+    @GetMapping("/sellproduct/expired")
+    public List<Product> getExpiredProducts() {
+        return productService.getExpiredProducts();
     }
 }
 
