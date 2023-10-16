@@ -2,6 +2,7 @@ package com.example.project02.service.product;
 
 import com.example.project02.constant.ProductSerllStatus;
 import com.example.project02.dto.ProductDTO;
+import com.example.project02.dto.SaleRecord;
 import com.example.project02.entity.Product;
 import com.example.project02.exception.ImageUploadException;
 import com.example.project02.exception.ProductNotFoundException;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -47,18 +49,19 @@ public class ProductService {
         return productMapper.toDTO(product);
     }
 
-    // 판매 물품 재고 수정
-    public boolean updateProductStockBySeller(Long sellerId, Long productId, int newStockQuantity) {
-        Optional<Product> productOptional = productRepository.findBySellerIdAndProductId(sellerId, productId);
+    //판매 물품 재고 수정
+    public boolean updateProductStockByProductName(String productName, int newStockQuantity) {
+        // productName을 사용하여 판매 물품을 찾습니다.
+        Product product = productRepository.findByProductNameIgnoreCase(productName); // 대소문자 구분하지 않는 검색
 
-        if (productOptional.isPresent()) {
-            Product product = productOptional.get();
+        if (product != null) {
+            // 제품을 찾았을 경우, 재고를 수정합니다.
             product.setStock_quantity(newStockQuantity);
             productRepository.save(product);
-            return true; // 업데이트 성공
+            return true;
         }
 
-        return false; // 업데이트 실패: 상품을 찾을 수 없음
+        return false; // 판매 물품을 찾을 수 없는 경우
     }
 
     // 이미지를 저장할 디렉토리 경로
@@ -83,9 +86,24 @@ public class ProductService {
         }
     }
 
-   //판매종료 날짜가 지난 판매 물품 내역 조회
-    public List<Product> getExpiredProducts() {
-        Date currentDate = new Date();
-        return productRepository.findByFieldPredictedSaleEnddateBeforeAndProductSerllStatus(currentDate, ProductSerllStatus.ACTIVE);
+    // 판매 종료된 제품의 상품을 조회하는 메소드
+    public List<SaleRecord> getExpiredProductHistory(Long productId) {
+        List<SaleRecord> saleRecords = new ArrayList<>();
+
+        // productId를 사용하여 판매 종료된 제품을 조회
+        List<Product> expiredProducts = productRepository.findExpiredProductsByProductId(productId);
+
+        for (Product product : expiredProducts) {
+            SaleRecord saleRecord = new SaleRecord();
+            saleRecord.setProductId(product.getProductId());
+            saleRecord.setProductName(product.getProductName());
+            saleRecord.setSellerId(product.getSellerId());
+            saleRecord.setSaleEndDate(product.getFieldPredictedSaleEnddate());
+            saleRecord.setSalePrice(product.getPrice());
+
+            saleRecords.add(saleRecord);
+        }
+
+        return saleRecords;
     }
 }

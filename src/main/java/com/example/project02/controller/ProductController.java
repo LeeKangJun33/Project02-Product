@@ -1,6 +1,7 @@
 package com.example.project02.controller;
 
 import com.example.project02.dto.ProductDTO;
+import com.example.project02.dto.SaleRecord;
 import com.example.project02.entity.Product;
 import com.example.project02.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -56,12 +57,11 @@ public class ProductController {
 
 
     // 판매 물품 재고 수정
-    @PutMapping("/sellproduct/adjuststock{sellerId}/{productId}/stock")
-    public ResponseEntity<String> updateProductStockBySeller(
-            @PathVariable Long sellerId,
-            @PathVariable Long productId,
+    @PutMapping("/sellproduct/{productName}/stock")
+    public ResponseEntity<String> updateProductStockByProductName(
+            @PathVariable String productName,
             @RequestParam int newStockQuantity) {
-        boolean success = productService.updateProductStockBySeller(sellerId, productId, newStockQuantity);
+        boolean success = productService.updateProductStockByProductName(productName, newStockQuantity);
 
         if (success) {
             return ResponseEntity.ok("재고 수정이 성공적으로 이루어졌습니다.");
@@ -89,10 +89,11 @@ public class ProductController {
         }
     }
 
-    //판매종료 날짜가 지난 판매 물품 내역 조회
-    @GetMapping("/sellproduct/expired")
-    public List<Product> getExpiredProducts() {
-        return productService.getExpiredProducts();
+    // 판매종료 날짜가 지난 판매 물품 내역 조회
+    @GetMapping("/sellproducts/{productId}/history")
+    public List<SaleRecord> getExpiredProductHistory(@PathVariable Long productId) {
+        List<SaleRecord> expiredProductHistory = productService.getExpiredProductHistory(productId);
+        return expiredProductHistory;
     }
 }
 
